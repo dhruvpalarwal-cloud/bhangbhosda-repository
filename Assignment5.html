@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Assignment 5 — JavaScript Basics</title>
+<style>
+:root{--bg:#f4f7fb;--panel:#fff;--ink:#172033;--muted:#657089;--line:#dbe2ee;--primary:#3858d6;--primary-dark:#263fa9;--green:#16845b;--red:#bd3345;--amber:#8a5b00;--soft:#eef2ff;--shadow:0 12px 32px rgba(28,42,78,.08)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+header{background:linear-gradient(125deg,#172554,#3858d6);color:#fff;padding:32px 20px}
+.header-inner,main{max-width:1180px;margin:auto}
+header h1{margin:0 0 8px;font-size:clamp(1.8rem,4vw,2.7rem);line-height:1.15}
+header p{margin:0;color:#e2e8ff}
+main{padding:24px 16px 56px}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}
+nav button,.button{border:0;border-radius:10px;padding:10px 15px;background:var(--primary);color:white;font:inherit;font-weight:650;cursor:pointer}
+nav button{background:#e4e9f8;color:#293a77}
+nav button[aria-selected=true]{background:var(--primary);color:#fff}
+button:hover:not(:disabled){filter:brightness(.94)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #f3b73f;outline-offset:2px}
+button:disabled{opacity:.45;cursor:not-allowed}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:clamp(16px,3vw,26px);box-shadow:var(--shadow);margin-bottom:22px}
+.panel h2{margin:0 0 6px;font-size:1.55rem}
+.lead{margin:0 0 20px;color:var(--muted)}
+.hidden{display:none!important}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+label{font-weight:650}
+input,select{width:100%;min-height:43px;border:1px solid #bdc8dc;border-radius:9px;padding:9px 11px;background:#fff;color:var(--ink);font:inherit}
+small,.muted{color:var(--muted)}
+.status{border-radius:10px;padding:11px 13px;background:#f0f3fa;margin:12px 0}
+.status.error,.error-text{color:var(--red)}
+.status.success{background:#e7f8ef;color:#116344}
+.status.error{background:#fff0f1}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin:14px 0}
+.secondary{background:#e8ecf7;color:#27345e}
+.danger{background:#b72e42}
+.stats{display:flex;gap:12px;flex-wrap:wrap;margin:14px 0}
+.stat{padding:10px 14px;background:#f0f3fb;border-radius:10px;min-width:110px}
+.stat strong{display:block;font-size:1.25rem}
+.code-slots{display:flex;gap:8px;justify-content:center;margin:20px 0}
+.code-slot{width:45px;height:55px;border:1px solid var(--line);border-radius:10px;display:grid;place-items:center;background:#f8faff;font-size:1.4rem;font-weight:800}
+.board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.column{border:1px solid var(--line);border-radius:12px;background:#f7f9fd;padding:12px;min-width:0}
+.column h3{margin:0 0 10px;display:flex;justify-content:space-between;gap:8px;font-size:1rem}
+.task-card{background:#fff;border:1px solid var(--line);border-left:4px solid var(--primary);border-radius:9px;padding:12px;margin:9px 0;overflow-wrap:anywhere}
+.task-card[data-priority=High]{border-left-color:var(--red)}
+.task-card[data-priority=Medium]{border-left-color:#d99a1b}
+.task-card[data-priority=Low]{border-left-color:var(--green)}
+.task-card h4{margin:0 0 4px}
+.task-card p{margin:4px 0;color:var(--muted);font-size:.9rem}
+.card-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.card-actions button{padding:6px 8px;font-size:.84rem;border-radius:7px}
+.progress-track{height:12px;background:#e5eaf5;border-radius:99px;overflow:hidden}
+.progress-fill{height:100%;width:0;background:var(--green);transition:width .2s}
+.progress-label{display:flex;justify-content:space-between;margin:8px 0}
+.preview{border:1px dashed #aab8d4;background:#f8faff;border-radius:12px;padding:16px;min-height:115px}
+.character-card{border:1px solid var(--line);border-radius:14px;padding:18px;background:#fff;box-shadow:var(--shadow)}
+.character-avatar{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;font-size:1.8rem;margin-bottom:10px}
+.skill-row{display:grid;grid-template-columns:100px 1fr 25px;gap:8px;align-items:center;margin:8px 0}
+.skill-meter{height:9px;background:#e6eaf2;border-radius:99px;overflow:hidden}
+.skill-meter span{display:block;height:100%;background:var(--primary)}
+.rules-table{width:100%;border-collapse:collapse;font-size:.92rem}
+.rules-table th,.rules-table td{text-align:left;vertical-align:top;padding:10px;border-bottom:1px solid var(--line)}
+.rules-table th{background:#f0f3fb}
+.table-wrap{overflow-x:auto}
+footer{text-align:center;color:var(--muted);padding:20px}
+@media(max-width:760px){.grid{grid-template-columns:1fr}.board{grid-template-columns:1fr}.panel{padding:16px}.rules-table{min-width:640px}}
+@media(min-width:761px) and (max-width:1000px){.board{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
+</head>
+<body>
+<header>
+<div class="header-inner">
+<h1>Assignment 5: JavaScript Basics</h1>
+<p>DOM Manipulation &amp; Events · Browser game, data-driven page, and live form validation</p>
+</div>
+</header>
+<main>
+<nav aria-label="Assignment tasks">
+<button type="button" data-tab="task1" aria-selected="true">Task 1 · Code Breaker</button>
+<button type="button" data-tab="task2" aria-selected="false">Task 2 · Kanban Board</button>
+<button type="button" data-tab="task3" aria-selected="false">Task 3 · Character Creator</button>
+</nav>
+
+<section id="task1" class="panel task-section">
+<h2>Task 1 — Code Breaker</h2>
+<p class="lead">Guess the secret four-digit code. Digits cannot repeat. You have eight attempts. Exact matches and misplaced digits are reported after each valid guess.</p>
+<div class="stats">
+<div class="stat"><span>Attempts left</span><strong id="attemptsLeft">8</strong></div>
+<div class="stat"><span>Attempts used</span><strong id="attemptsUsed">0</strong></div>
+<div class="stat"><span>Game status</span><strong id="gameStatus">Playing</strong></div>
+</div>
+<div class="code-slots" aria-label="Four digit code">
+<div class="code-slot">?</div><div class="code-slot">?</div><div class="code-slot">?</div><div class="code-slot">?</div>
+</div>
+<form id="guessForm" novalidate>
+<div class="field">
+<label for="guessInput">Your four-digit guess</label>
+<input id="guessInput" inputmode="numeric" autocomplete="off" maxlength="4" placeholder="Enter 4 different digits" aria-describedby="guessHelp guessMessage">
+<small id="guessHelp">Use four digits from 0 to 9 without repeating any digit.</small>
+</div>
+<div id="guessMessage" class="status" role="status" aria-live="polite">Enter a guess to begin.</div>
+<div class="actions"><button class="button" id="guessButton" type="submit">Check guess</button><button class="button secondary" id="restartGame" type="button">Restart game</button></div>
+</form>
+<div>
+<h3>Guess history</h3>
+<ol id="guessHistory"><li class="muted">No guesses yet.</li></ol>
+</div>
+</section>
+
+<section id="task2" class="panel task-section hidden">
+<h2>Task 2 — Kanban Board</h2>
+<p class="lead">The board is generated from an array of task objects. Search and filter tasks, sort by priority, and move cards between columns. The In progress column can hold at most three cards.</p>
+<div class="grid">
+<div class="field"><label for="taskTitle">New task title</label><input id="taskTitle" maxlength="80" placeholder="e.g. Prepare presentation"></div>
+<div class="field"><label for="taskTag">Tag</label><select id="taskTag"><option>Study</option><option>Project</option><option>Personal</option><option>Research</option></select></div>
+<div class="field"><label for="taskPriority">Priority</label><select id="taskPriority"><option>High</option><option selected>Medium</option><option>Low</option></select></div>
+<div class="field"><label for="taskStatus">Starting column</label><select id="taskStatus"><option value="todo">To do</option><option value="progress">In progress</option><option value="done">Done</option></select></div>
+</div>
+<div class="actions"><button type="button" class="button" id="addTask">Add task</button></div>
+<div id="boardMessage" class="status" role="status" aria-live="polite">Move a task to update the board.</div>
+<div class="grid">
+<div class="field"><label for="taskSearch">Search tasks</label><input id="taskSearch" placeholder="Search by title or tag"></div>
+<div class="field"><label for="tagFilter">Filter by tag</label><select id="tagFilter"><option value="All">All tags</option><option>Study</option><option>Project</option><option>Personal</option><option>Research</option></select></div>
+</div>
+<div class="field"><label for="sortPriority">Sort by priority</label><select id="sortPriority"><option value="default">Default order</option><option value="priority">High to low priority</option></select></div>
+<div class="progress-label"><strong>Completed tasks</strong><span id="progressText">0 of 10 (0%)</span></div>
+<div class="progress-track" role="progressbar" aria-label="Completed tasks" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progressTrack"><div class="progress-fill" id="progressFill"></div></div>
+<div class="board" id="kanbanBoard" aria-live="polite">
+<div class="column" data-column="todo"><h3>To do <span>0</span></h3><div class="cards"></div></div>
+<div class="column" data-column="progress"><h3>In progress <span>0 / 3</span></h3><div class="cards"></div></div>
+<div class="column" data-column="done"><h3>Done <span>0</span></h3><div class="cards"></div></div>
+</div>
+</section>
+
+<section id="task3" class="panel task-section hidden">
+<h2>Task 3 — Character Creator</h2>
+<p class="lead">Create a character with exactly 20 skill points. Each skill must be between 1 and 10. The preview updates while you type; class-specific rules and taken names are checked with clear messages.</p>
+<div class="grid">
+<form id="characterForm" novalidate>
+<div id="formSummary" class="status hidden" role="alert" tabindex="-1"></div>
+<div class="field"><label for="characterName">Character name</label><input id="characterName" name="characterName" maxlength="20" required autocomplete="off" aria-describedby="characterNameError"><small id="characterNameError" class="error-text"></small></div>
+<div class="field"><label for="characterClass">Class</label><select id="characterClass" name="characterClass" required aria-describedby="characterClassError"><option value="">Choose a class</option><option value="Mage">Mage</option><option value="Warrior">Warrior</option><option value="Ranger">Ranger</option></select><small id="characterClassError" class="error-text"></small></div>
+<div class="field"><label for="characterColor">Card color</label><select id="characterColor" name="characterColor"><option value="#dbeafe">Sky blue</option><option value="#fce7f3">Pink</option><option value="#dcfce7">Mint green</option><option value="#fef3c7">Golden</option><option value="#ede9fe">Lavender</option></select></div>
+<div class="field"><label for="skillStrength">Strength (1–10)</label><input id="skillStrength" type="number" min="1" max="10" step="1" value="5" required aria-describedby="skillStrengthError"><small id="skillStrengthError" class="error-text"></small></div>
+<div class="field"><label for="skillMagic">Magic (1–10)</label><input id="skillMagic" type="number" min="1" max="10" step="1" value="5" required aria-describedby="skillMagicError"><small id="skillMagicError" class="error-text"></small></div>
+<div class="field"><label for="skillAgility">Agility (1–10)</label><input id="skillAgility" type="number" min="1" max="10" step="1" value="5" required aria-describedby="skillAgilityError"><small id="skillAgilityError" class="error-text"></small></div>
+<div class="field"><label for="skillDefense">Defense (1–10)</label><input id="skillDefense" type="number" min="1" max="10" step="1" value="5" required aria-describedby="skillDefenseError"><small id="skillDefenseError" class="error-text"></small></div>
+<div id="pointsMessage" class="status" aria-live="polite">Skill points used: 20 of 20.</div>
+<div class="actions"><button class="button" type="submit">Create character</button><button class="button secondary" type="reset">Reset form</button></div>
+</form>
+<div>
+<h3>Live preview</h3>
+<div id="characterPreview" class="preview" aria-live="polite"></div>
+<div id="characterResult" class="status hidden" role="status" aria-live="polite"></div>
+</div>
+</div>
+<div class="table-wrap">
+<h3>Task 3 — Rules table</h3>
+<table class="rules-table">
+<thead><tr><th>Field</th><th>Rule</th><th>Valid example</th><th>Invalid example</th></tr></thead>
+<tbody>
+<tr><td>Name</td><td>Required, 3–20 characters, letters, spaces and hyphens; must be unique.</td><td>Arin Storm</td><td>Al; taken name: Luna</td></tr>
+<tr><td>Class</td><td>A class must be selected.</td><td>Mage</td><td>No selection</td></tr>
+<tr><td>Strength</td><td>Whole number from 1 to 10.</td><td>5</td><td>0 or 4.5</td></tr>
+<tr><td>Magic</td><td>Whole number from 1 to 10; Mage needs at least 5 magic.</td><td>Mage with 6</td><td>Mage with 3</td></tr>
+<tr><td>Agility</td><td>Whole number from 1 to 10.</td><td>4</td><td>11</td></tr>
+<tr><td>Defense</td><td>Whole number from 1 to 10.</td><td>5</td><td>-1</td></tr>
+<tr><td>All skills</td><td>The four skills must total exactly 20 points.</td><td>5 + 5 + 5 + 5 = 20</td><td>5 + 5 + 6 + 5 = 21</td></tr>
+<tr><td>Warrior class</td><td>Warrior needs at least 5 strength.</td><td>Strength 7</td><td>Strength 2</td></tr>
+<tr><td>Ranger class</td><td>Ranger needs at least 5 agility.</td><td>Agility 8</td><td>Agility 3</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+</main>
+<footer>Assignment 5 · JavaScript Basics · DOM Manipulation &amp; Events</footer>
+<script defer>
+const CODE_LENGTH = 4;
+const MAX_ATTEMPTS = 8;
+const DIGIT_MIN = 0;
+const DIGIT_MAX = 9;
+const MAX_IN_PROGRESS = 3;
+const INITIAL_TASKS = [
+{id:1,title:"Review lecture notes",tag:"Study",priority:"High",status:"todo",order:1},
+{id:2,title:"Build landing page",tag:"Project",priority:"High",status:"progress",order:2},
+{id:3,title:"Read JavaScript chapter",tag:"Study",priority:"Medium",status:"todo",order:3},
+{id:4,title:"Prepare project slides",tag:"Project",priority:"Medium",status:"progress",order:4},
+{id:5,title:"Plan weekly goals",tag:"Personal",priority:"Low",status:"done",order:5},
+{id:6,title:"Research UI patterns",tag:"Research",priority:"High",status:"todo",order:6},
+{id:7,title:"Test form validation",tag:"Project",priority:"High",status:"progress",order:7},
+{id:8,title:"Organize study files",tag:"Study",priority:"Low",status:"done",order:8},
+{id:9,title:"Write project summary",tag:"Research",priority:"Medium",status:"todo",order:9},
+{id:10,title:"Check assignment rubric",tag:"Personal",priority:"Medium",status:"done",order:10}
+];
+const takenNames = ["Luna","Shadow","Nova","Arin"];
+const byId = id => document.getElementById(id);
+document.querySelectorAll("[data-tab]").forEach(button => {
+button.addEventListener("click", () => {
+document.querySelectorAll("[data-tab]").forEach(item => item.setAttribute("aria-selected", String(item === button)));
+document.querySelectorAll(".task-section").forEach(section => section.classList.toggle("hidden", section.id !== button.dataset.tab));
+});
+});
+
+let secretCode = [];
+let attempts = 0;
+let gameOver = false;
+function randomInteger(min, max) {
+return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+function makeCode() {
+const digits = [];
+while (digits.length < CODE_LENGTH) {
+const digit = randomInteger(DIGIT_MIN, DIGIT_MAX);
+if (!digits.includes(digit)) digits.push(digit);
+}
+return digits.join("");
+}
+function updateGameState() {
+byId("attemptsLeft").textContent = MAX_ATTEMPTS - attempts;
+byId("attemptsUsed").textContent = attempts;
+byId("gameStatus").textContent = gameOver ? "Finished" : "Playing";
+byId("guessButton").disabled = gameOver;
+byId("guessInput").disabled = gameOver;
+}
+function restartGame() {
+secretCode = makeCode();
+attempts = 0;
+gameOver = false;
+byId("guessInput").value = "";
+byId("guessHistory").replaceChildren();
+const empty = document.createElement("li");
+empty.className = "muted";
+empty.textContent = "No guesses yet.";
+byId("guessHistory").append(empty);
+byId("guessMessage").className = "status";
+byId("guessMessage").textContent = "New game started. Enter a guess.";
+document.querySelectorAll(".code-slot").forEach(slot => slot.textContent = "?");
+updateGameState();
+}
+byId("guessForm").addEventListener("submit", event => {
+event.preventDefault();
+if (gameOver) return;
+const guess = byId("guessInput").value.trim();
+const digits = [...guess];
+const valid = /^\d{4}$/.test(guess) && new Set(digits).size === CODE_LENGTH;
+if (!valid) {
+byId("guessMessage").className = "status error";
+byId("guessMessage").textContent = "Invalid guess. Enter exactly four different digits from 0 to 9. Your game state has not changed.";
+return;
+}
+attempts++;
+let exact = 0;
+let misplaced = 0;
+for (let index = 0; index < CODE_LENGTH; index++) {
+if (guess[index] === secretCode[index]) exact++;
+else if (secretCode.includes(guess[index])) misplaced++;
+}
+const entry = document.createElement("li");
+entry.textContent = guess + " — " + exact + " in the right place, " + misplaced + " in the wrong place.";
+byId("guessHistory").querySelector(".muted")?.remove();
+byId("guessHistory").append(entry);
+if (exact === CODE_LENGTH) {
+gameOver = true;
+byId("guessMessage").className = "status success";
+byId("guessMessage").textContent = "Correct! You broke the code in " + attempts + " attempt(s).";
+document.querySelectorAll(".code-slot").forEach((slot, index) => slot.textContent = secretCode[index]);
+} else if (attempts === MAX_ATTEMPTS) {
+gameOver = true;
+byId("guessMessage").className = "status error";
+byId("guessMessage").textContent = "No attempts left. The secret code was " + secretCode + ". Restart to play again.";
+document.querySelectorAll(".code-slot").forEach((slot, index) => slot.textContent = secretCode[index]);
+} else {
+byId("guessMessage").className = "status";
+byId("guessMessage").textContent = "Guess checked. Try again.";
+}
+byId("guessInput").value = "";
+updateGameState();
+});
+byId("restartGame").addEventListener("click", restartGame);
+restartGame();
+
+let tasks = INITIAL_TASKS.map(task => ({...task}));
+let nextTaskId = 11;
+function priorityRank(priority) {
+if (priority === "High") return 3;
+if (priority === "Medium") return 2;
+return 1;
+}
+function countStatus(status) {
+let count = 0;
+for (const task of tasks) if (task.status === status) count++;
+return count;
+}
+function showBoardMessage(message, type = "") {
+byId("boardMessage").className = "status" + (type ? " " + type : "");
+byId("boardMessage").textContent = message;
+}
+function renderBoard() {
+const board = byId("kanbanBoard");
+const query = byId("taskSearch").value.trim().toLowerCase();
+const tag = byId("tagFilter").value;
+const sort = byId("sortPriority").value;
+const visible = tasks.filter(task => (task.title.toLowerCase().includes(query) || task.tag.toLowerCase().includes(query)) && (tag === "All" || task.tag === tag));
+if (sort === "priority") visible.sort((a,b) => priorityRank(b.priority) - priorityRank(a.priority) || a.order - b.order);
+else visible.sort((a,b) => a.order - b.order);
+board.querySelectorAll(".column").forEach(column => {
+const status = column.dataset.column;
+const container = column.querySelector(".cards");
+container.replaceChildren();
+const items = visible.filter(task => task.status === status);
+const count = countStatus(status);
+column.querySelector("h3 span").textContent = status === "progress" ? count + " / " + MAX_IN_PROGRESS : count;
+for (const task of items) {
+const card = document.createElement("article");
+card.className = "task-card";
+card.dataset.id = task.id;
+card.dataset.priority = task.priority;
+const title = document.createElement("h4");
+title.textContent = task.title;
+const description = document.createElement("p");
+description.textContent = task.tag + " · " + task.priority + " priority";
+const actions = document.createElement("div");
+actions.className = "card-actions";
+const statuses = [{value:"todo",label:"To do"},{value:"progress",label:"In progress"},{value:"done",label:"Done"}];
+for (const option of statuses) {
+const button = document.createElement("button");
+button.type = "button";
+button.className = "button secondary";
+button.dataset.action = "move";
+button.dataset.id = task.id;
+button.dataset.status = option.value;
+button.textContent = option.label;
+button.disabled = option.value === task.status;
+actions.append(button);
+}
+const remove = document.createElement("button");
+remove.type = "button";
+remove.className = "button danger";
+remove.dataset.action = "delete";
+remove.dataset.id = task.id;
+remove.textContent = "Delete";
+actions.append(remove);
+card.append(title, description, actions);
+container.append(card);
+}
+if (items.length === 0) {
+const empty = document.createElement("p");
+empty.className = "muted";
+empty.textContent = visible.length === 0 ? "No tasks match your search." : "No tasks in this column.";
+container.append(empty);
+}
+});
+const done = countStatus("done");
+let total = 0;
+for (const task of tasks) total++;
+const percentage = total === 0 ? 0 : Math.round(done / total * 100);
+byId("progressText").textContent = done + " of " + total + " (" + percentage + "%)";
+byId("progressFill").style.width = percentage + "%";
+byId("progressTrack").setAttribute("aria-valuenow", percentage);
+}
+byId("kanbanBoard").addEventListener("click", event => {
+const button = event.target.closest("button[data-action]");
+if (!button) return;
+const id = Number(button.dataset.id);
+const task = tasks.find(item => item.id === id);
+if (!task) return;
+if (button.dataset.action === "delete") {
+tasks = tasks.filter(item => item.id !== id);
+showBoardMessage("Task deleted.");
+renderBoard();
+return;
+}
+const destination = button.dataset.status;
+if (destination === "progress" && task.status !== "progress" && countStatus("progress") >= MAX_IN_PROGRESS) {
+showBoardMessage("Move blocked: In progress can contain at most " + MAX_IN_PROGRESS + " tasks. Move another task out first.", "error");
+return;
+}
+task.status = destination;
+showBoardMessage("Moved “" + task.title + "” to " + (destination === "todo" ? "To do" : destination === "progress" ? "In progress" : "Done") + ".");
+renderBoard();
+});
+byId("addTask").addEventListener("click", () => {
+const title = byId("taskTitle").value.trim();
+const status = byId("taskStatus").value;
+if (!title) {
+showBoardMessage("Enter a title before adding a task.", "error");
+byId("taskTitle").focus();
+return;
+}
+if (status === "progress" && countStatus("progress") >= MAX_IN_PROGRESS) {
+showBoardMessage("Task not added: In progress already contains " + MAX_IN_PROGRESS + " tasks. Choose another column.", "error");
+return;
+}
+tasks.push({id:nextTaskId,title,tag:byId("taskTag").value,priority:byId("taskPriority").value,status,order:nextTaskId});
+nextTaskId++;
+byId("taskTitle").value = "";
+showBoardMessage("Task added.");
+renderBoard();
+});
+["taskSearch","tagFilter","sortPriority"].forEach(id => byId(id).addEventListener(id === "taskSearch" ? "input" : "change", renderBoard));
+renderBoard();
+
+const characterForm = byId("characterForm");
+const skillIds = ["skillStrength","skillMagic","skillAgility","skillDefense"];
+const skillNames = ["Strength","Magic","Agility","Defense"];
+const fieldIds = ["characterName","characterClass",...skillIds];
+const fieldErrors = new Map();
+function currentSkills() {
+return skillIds.map(id => Number(byId(id).value));
+}
+function getCharacterErrors() {
+const errors = new Map();
+const name = byId("characterName").value.trim();
+const characterClass = byId("characterClass").value;
+const skills = currentSkills();
+if (!name) errors.set("characterName","Enter a character name.");
+else if (name.length < 3 || name.length > 20 || !/^[A-Za-z][A-Za-z -]*$/.test(name)) errors.set("characterName","Use 3–20 letters, spaces or hyphens; start with a letter.");
+else if (takenNames.some(item => item.toLowerCase() === name.toLowerCase())) errors.set("characterName","That name is already taken. Choose another name.");
+if (!characterClass) errors.set("characterClass","Choose a character class.");
+skillIds.forEach((id,index) => {
+const raw = byId(id).value;
+const value = Number(raw);
+if (raw.trim() === "" || !Number.isInteger(value) || value < 1 || value > 10) errors.set(id,"Enter a whole number from 1 to 10.");
+});
+const total = skills.reduce((sum,value) => sum + value,0);
+if (skillIds.every(id => !errors.has(id)) && total !== 20) {
+errors.set("skillDefense","The four skills must total exactly 20 points. Current total: " + total + ".");
+}
+if (characterClass === "Mage" && Number(byId("skillMagic").value) < 5) errors.set("skillMagic","A Mage needs at least 5 Magic points.");
+if (characterClass === "Warrior" && Number(byId("skillStrength").value) < 5) errors.set("skillStrength","A Warrior needs at least 5 Strength points.");
+if (characterClass === "Ranger" && Number(byId("skillAgility").value) < 5) errors.set("skillAgility","A Ranger needs at least 5 Agility points.");
+return errors;
+}
+function updateSkillCounter() {
+const skills = currentSkills();
+const total = skills.reduce((sum,value) => sum + (Number.isFinite(value) ? value : 0),0);
+const remaining = 20 - total;
+byId("pointsMessage").className = "status" + (remaining === 0 ? " success" : " error");
+byId("pointsMessage").textContent = "Skill points used: " + total + " of 20. " + (remaining === 0 ? "Exactly 20 points allocated." : remaining > 0 ? remaining + " points left to allocate." : Math.abs(remaining) + " points over the limit.");
+}
+function renderCharacterPreview() {
+const name = byId("characterName").value.trim() || "Your character";
+const characterClass = byId("characterClass").value || "Choose a class";
+const color = byId("characterColor").value;
+const skills = currentSkills();
+const preview = byId("characterPreview");
+preview.replaceChildren();
+const card = document.createElement("div");
+card.className = "character-card";
+card.style.background = color;
+const avatar = document.createElement("div");
+avatar.className = "character-avatar";
+avatar.style.background = "rgba(255,255,255,.75)";
+avatar.textContent = characterClass === "Mage" ? "✦" : characterClass === "Warrior" ? "⚔" : characterClass === "Ranger" ? "➶" : "★";
+const heading = document.createElement("h3");
+heading.textContent = name;
+const classText = document.createElement("p");
+classText.textContent = characterClass;
+card.append(avatar,heading,classText);
+skills.forEach((value,index) => {
+const row = document.createElement("div");
+row.className = "skill-row";
+const label = document.createElement("span");
+label.textContent = skillNames[index];
+const meter = document.createElement("div");
+meter.className = "skill-meter";
+const fill = document.createElement("span");
+fill.style.width = Math.max(0,Math.min(10,value)) * 10 + "%";
+meter.append(fill);
+const number = document.createElement("strong");
+number.textContent = Number.isFinite(value) ? String(value) : "—";
+row.append(label,meter,number);
+card.append(row);
+});
+const total = document.createElement("p");
+total.textContent = "Skill points: " + skills.reduce((sum,value) => sum + (Number.isFinite(value) ? value : 0),0) + " / 20";
+card.append(total);
+preview.append(card);
+updateSkillCounter();
+}
+function showFieldErrors(errors, showAll = false) {
+fieldIds.forEach(id => {
+const input = byId(id);
+const error = errors.get(id) || "";
+const touched = fieldErrors.has(id);
+const visibleError = error && (showAll || touched);
+input.setAttribute("aria-invalid", String(Boolean(visibleError)));
+const errorElement = byId(id + "Error");
+if (errorElement) errorElement.textContent = visibleError ? error : "";
+});
+}
+function updateValidation(showAll = false) {
+const errors = getCharacterErrors();
+showFieldErrors(errors,showAll);
+const summary = byId("formSummary");
+if (showAll && errors.size > 0) {
+summary.classList.remove("hidden");
+summary.className = "status error";
+summary.textContent = errors.size + " validation error(s). Correct the fields marked below.";
+} else {
+summary.classList.add("hidden");
+}
+return errors;
+}
+fieldIds.forEach(id => {
+const input = byId(id);
+input.addEventListener("blur", () => {
+fieldErrors.add(id);
+updateValidation(false);
+});
+input.addEventListener("input", () => {
+renderCharacterPreview();
+if (fieldErrors.has(id)) updateValidation(false);
+});
+input.addEventListener("change", () => {
+renderCharacterPreview();
+if (fieldErrors.has(id)) updateValidation(false);
+});
+});
+byId("characterColor").addEventListener("input",renderCharacterPreview);
+byId("characterColor").addEventListener("change",renderCharacterPreview);
+characterForm.noValidate = true;
+characterForm.addEventListener("submit",event => {
+event.preventDefault();
+const errors = updateValidation(true);
+if (errors.size > 0) {
+const first = fieldIds.find(id => errors.has(id));
+byId(first).focus();
+byId("characterResult").classList.add("hidden");
+return;
+}
+const name = byId("characterName").value.trim();
+const characterClass = byId("characterClass").value;
+const result = byId("characterResult");
+result.replaceChildren();
+const heading = document.createElement("h3");
+heading.textContent = "Character created successfully!";
+const description = document.createElement("p");
+description.textContent = name + " the " + characterClass + " is ready for adventure.";
+const skills = document.createElement("p");
+skills.textContent = skillNames.map((skill,index) => skill + ": " + currentSkills()[index]).join(" · ");
+result.append(heading,description,skills);
+result.className = "status success";
+takenNames.push(name);
+});
+characterForm.addEventListener("reset",() => {
+fieldErrors.clear();
+byId("characterResult").classList.add("hidden");
+byId("formSummary").classList.add("hidden");
+fieldIds.forEach(id => {
+byId(id).setAttribute("aria-invalid","false");
+const error = byId(id + "Error");
+if (error) error.textContent = "";
+});
+setTimeout(() => {
+renderCharacterPreview();
+},0);
+});
+characterForm.querySelectorAll("input,select").forEach(input => input.setAttribute("aria-invalid","false"));
+renderCharacterPreview();
+</script>
+</body>
+</html>
